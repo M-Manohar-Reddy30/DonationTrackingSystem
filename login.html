@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Charity Analytics</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f9ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 320px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+    .btn-google {
+      background: #db4437;
+      color: white;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🩵 Charity Analytics</h2>
+    <h3>Login to Your Account</h3>
+
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+
+    <button id="loginBtn" class="btn-primary">Sign In</button>
+    <button id="googleLogin" class="btn-google">Google</button>
+
+    <p>Don't have an account? <a href="signup.html">Create one</a></p>
+  </div>
+
+  
+  <script type="module" src="js/firebaseConfig.js"></script>
+  <script type="module" src="js/auth.js"></script>
+<script type="module">
+    // Firebase SDK imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } 
+      from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+
+    // Your Firebase config
+    const firebaseConfig = {
+        apiKey: "AIzaSyBVKfekfdUaRcaO8GXVkDJ7RSEYCOEzGdo", 
+        authDomain: "charity-donation-system-8a92f.firebaseapp.com", 
+        projectId: "charity-donation-system-8a92f", 
+        storageBucket: "charity-donation-system-8a92f.firebasestorage.app", 
+        messagingSenderId: "474185233581", 
+        appId: "1:474185233581:web:3ec10cf9087aaabec48224" 
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // --- Email Login ---
+    document.getElementById("loginBtn").addEventListener("click", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("✅ Login successful!");
+        window.location.href = "index.html.html"; // your redirect page
+      } catch (error) {
+        alert("❌ " + error.message);
+      }
+    });
+
+    // --- Google Login ---
+    document.getElementById("googleLogin").addEventListener("click", async (e) => {
+      e.preventDefault();
+      try {
+        await signInWithPopup(auth, provider);
+        alert("✅ Google login successful!");
+        window.location.href = "index.html";
+      } catch (error) {
+        alert("❌ " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

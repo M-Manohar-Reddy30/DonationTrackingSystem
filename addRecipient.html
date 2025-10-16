@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Recipient</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 25px 35px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+    }
+    input {
+      background-color: rgba(255,255,255,0.9);
+      color: #333;
+    }
+    button {
+      background-color: #00c6ff;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0072ff;
+    }
+    .success {
+      text-align: center;
+      color: #0f0;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+    .nav-buttons a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      background-color: #ff8c00;
+      padding: 10px 14px;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+    .nav-buttons a:hover {
+      background-color: #ffa733;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Add Recipient</h2>
+
+    <form id="recipientForm">
+      <input type="text" id="recipientName" placeholder="Recipient Name" required>
+      <input type="text" id="recipientBloodGroup" placeholder="Blood Group" required>
+      <input type="number" id="recipientAge" placeholder="Age" required>
+      <input type="text" id="recipientCity" placeholder="City" required>
+      <input type="tel" id="recipientContact" placeholder="Contact Number" required>
+      <button type="submit">Add Recipient</button>
+      <div class="success" id="successMsg"></div>
+    </form>
+
+    <div class="nav-buttons">
+      <a href="index.html">🏠 Home</a>
+      <a href="viewRecipients.html">👁 View Recipients</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("recipientForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      let name = document.getElementById("recipientName").value.trim();
+      let bloodGroup = document.getElementById("recipientBloodGroup").value.trim();
+      let age = document.getElementById("recipientAge").value.trim();
+      let city = document.getElementById("recipientCity").value.trim();
+      let contact = document.getElementById("recipientContact").value.trim();
+
+      let newRecipient = { name, bloodGroup, age, city, contact, date: new Date().toLocaleString() };
+
+      let recipients = JSON.parse(localStorage.getItem("recipients")) || [];
+      recipients.push(newRecipient);
+      localStorage.setItem("recipients", JSON.stringify(recipients));
+
+      document.getElementById("recipientForm").reset();
+      let msg = document.getElementById("successMsg");
+      msg.textContent = "Recipient added successfully!";
+      setTimeout(() => msg.textContent = "", 2000);
+    });
+  </script>
+
+</body>
+</html>

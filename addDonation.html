@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Donation - CharityConnect</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f7971e, #ffd200);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 40px 30px;
+      border-radius: 15px;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #d35400;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      box-sizing: border-box;
+      transition: 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #f39c12;
+      box-shadow: 0 0 8px rgba(243, 156, 18, 0.4);
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #f39c12, #d35400);
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #e67e22, #f39c12);
+    }
+
+    .success-message {
+      display: none;
+      color: green;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .footer a {
+      color: #d35400;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>💖 Add New Donation</h2>
+    <form id="donationForm">
+      <label for="donorName">Donor Name</label>
+      <input type="text" id="donorName" required />
+
+      <label for="donationType">Donation Type</label>
+      <select id="donationType" required>
+        <option value="">Select Type</option>
+        <option value="Money">Money</option>
+        <option value="Food">Food</option>
+        <option value="Clothes">Clothes</option>
+        <option value="Medicine">Medicine</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label for="amount">Amount / Quantity</label>
+      <input type="text" id="amount" placeholder="e.g. ₹5000 or 5 Boxes" required />
+
+      <label for="message">Message / Purpose</label>
+      <textarea id="message" rows="3" placeholder="Optional"></textarea>
+
+      <label for="date">Date</label>
+      <input type="date" id="date" required />
+
+      <button type="submit">Add Donation</button>
+      <p class="success-message" id="successMessage">✅ Donation added successfully!</p>
+    </form>
+  </div>
+
+  <div class="footer">
+    <p>Want to see all donations? <a href="viewDonations.html">View Donations</a></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("donationForm");
+    const successMessage = document.getElementById("successMessage");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const donorName = document.getElementById("donorName").value.trim();
+      const donationType = document.getElementById("donationType").value;
+      const amount = document.getElementById("amount").value.trim();
+      const message = document.getElementById("message").value.trim();
+      const date = document.getElementById("date").value;
+
+      if (!donorName || !donationType || !amount || !date) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+
+      const donation = {
+        donorName,
+        donationType,
+        amount,
+        message,
+        date,
+      };
+
+      let donations = JSON.parse(localStorage.getItem("donations")) || [];
+      donations.push(donation);
+      localStorage.setItem("donations", JSON.stringify(donations));
+
+      form.reset();
+      successMessage.style.display = "block";
+      setTimeout(() => (successMessage.style.display = "none"), 2000);
+    });
+  </script>
+</body>
+</html>

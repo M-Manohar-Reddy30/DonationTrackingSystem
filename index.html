@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Charity Analytics — Pro Dashboard</title>
+
+  <!-- Tailwind CDN -->
+  
+  <script type="module" src="js/firebaseConfig.js"></script>
+  <script type="module" src="js/auth.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* small customizations on top of Tailwind */
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.55));
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(8,15,52,0.06);
+    }
+    .glass-dark {
+      background: linear-gradient(180deg, rgba(8,15,52,0.6), rgba(8,15,52,0.5));
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .count-up { transition: all 700ms cubic-bezier(.2,.9,.2,1); }
+    .scroll-x { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  </style>
+</head>
+<body class="antialiased bg-slate-50 text-slate-800">
+
+  <div id="app" class="min-h-screen flex">
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="w-72 hidden md:block bg-white glass p-5 border-r">
+      <div class="mb-6">
+        <h1 class="text-xl font-bold text-sky-600 flex items-center gap-2">🔷 Charity Analytics</h1>
+        <p class="text-sm text-slate-500 mt-1">Insightful analytics — demo mode</p>
+      </div>
+
+      <nav class="space-y-1 mt-6">
+        <a href="index.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Dashboard</a>
+        <a href="addDonor.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Add Donor</a>
+        <a href="viewDonors.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100">View Donors</a>
+        <a href="addRecipient.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Add Recipient</a>
+        <a href="viewRecipients.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100">View Recipients</a>
+        <a href="addDonation.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Add Donation</a>
+        <a href="viewDonations.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100">View Donations</a>
+      </nav>
+
+      <div class="mt-6 pt-4 border-t">
+        <button id="themeToggle" class="w-full text-left px-3 py-2 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100">Toggle Dark</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="flex-1">
+      <!-- topbar for mobile -->
+      <header class="md:hidden p-4 bg-white glass border-b">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button id="openSidebar" class="p-2 rounded-md bg-slate-100">☰</button>
+            <div class="text-lg font-semibold text-sky-600">Charity Analytics</div>
+          </div>
+          <div>
+            <button id="themeToggleMobile" class="px-3 py-1 rounded-md bg-sky-50 text-sky-700">Theme</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- 🔹 ADDED USER INFO BAR FROM SECOND INDEX -->
+      <div class="hidden md:flex items-center justify-between bg-sky-600 text-white px-6 py-3">
+        <h2 class="text-lg font-semibold">Charity Connect Dashboard 💖</h2>
+        <div class="text-sm flex items-center gap-3">
+          Logged in as: <span id="userBadge" class="font-semibold">Loading...</span>
+          <button id="logoutBtn" class="bg-white text-sky-600 rounded-md px-3 py-1 hover:bg-slate-100">Logout</button>
+        </div>
+      </div>
+      <!-- 🔹 END USER INFO BAR -->
+
+      <main class="p-6 max-w-7xl mx-auto">
+        <!-- HERO -->
+        <section class="rounded-xl p-6 glass">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-bold text-slate-900">Dashboard — Insights</h2>
+              <p class="text-sm text-slate-500 mt-1">Realtime demo data powered by LocalStorage. Use Add pages to create data.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="addDonation.html" class="px-4 py-2 bg-sky-600 text-white rounded-lg shadow hover:bg-sky-700">Add Donation</a>
+              <a href="addDonor.html" class="px-4 py-2 border rounded-lg text-sky-600 hover:bg-slate-50">Add Donor</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- METRICS -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div class="p-4 rounded-xl glass flex items-center justify-between">
+            <div>
+              <div class="text-sm text-slate-500">Total Donors</div>
+              <div id="totalDonors" class="text-2xl font-extrabold count-up">0</div>
+            </div>
+            <div class="bg-sky-50 p-3 rounded-lg">
+              <svg class="w-7 h-7 text-sky-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M6 20H1v-2a4 4 0 014-4h1m6-4a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl glass flex items-center justify-between">
+            <div>
+              <div class="text-sm text-slate-500">Total Recipients</div>
+              <div id="totalRecipients" class="text-2xl font-extrabold count-up">0</div>
+            </div>
+            <div class="bg-sky-50 p-3 rounded-lg">
+              <svg class="w-7 h-7 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl glass flex items-center justify-between">
+            <div>
+              <div class="text-sm text-slate-500">Total Donations (₹)</div>
+              <div id="totalDonations" data-currency="true" class="text-2xl font-extrabold count-up">₹0</div>
+            </div>
+            <div class="bg-sky-50 p-3 rounded-lg">
+              <svg class="w-7 h-7 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z"/></svg>
+            </div>
+          </div>
+        </section>
+
+        <!-- CHART + RECENT -->
+        <section class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 p-4 rounded-xl glass">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-lg font-semibold">Donations by Donor</h3>
+              <div class="text-sm text-slate-500">Live view</div>
+            </div>
+            <canvas id="donationByDonor" height="160"></canvas>
+          </div>
+
+          <div class="p-4 rounded-xl glass">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-lg font-semibold">Recent Donations</h3>
+              <div class="text-sm text-slate-500">Latest</div>
+            </div>
+            <div class="overflow-auto">
+              <table class="min-w-full text-sm" id="recentTable">
+                <thead class="text-left text-slate-500 text-xs">
+                  <tr><th class="py-2">Donor</th><th class="py-2">Recipient</th><th class="py-2">Amount</th><th class="py-2">Date</th></tr>
+                </thead>
+                <tbody id="recentTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TOP DONORS & STORIES -->
+        <section class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 p-4 rounded-xl glass">
+            <h3 class="text-lg font-semibold mb-3">Top Donors 💎</h3>
+            <ul id="topDonors" class="space-y-3"></ul>
+          </div>
+
+          <div class="p-4 rounded-xl glass">
+            <h3 class="text-lg font-semibold mb-3">Impact Snapshots</h3>
+            <div class="scroll-x flex gap-3">
+              <div class="min-w-[180px]">
+                <img src="https://images.unsplash.com/photo-1588776814546-62b3b4f0ef80?auto=format&fit=crop&w=600&q=60" class="rounded-md mb-2" alt="">
+                <div class="text-sm font-semibold">Education Kits</div>
+                <div class="text-xs text-slate-500">Scholarships & supplies</div>
+              </div>
+              <div class="min-w-[180px]">
+                <img src="https://images.unsplash.com/photo-1600682444117-2f1916e5b48d?auto=format&fit=crop&w=600&q=60" class="rounded-md mb-2" alt="">
+                <div class="text-sm font-semibold">Food Drives</div>
+                <div class="text-xs text-slate-500">Winter support</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer class="mt-10 text-center text-sm text-slate-500">© 2025 Charity Analytics — Demo data only</footer>
+      </main>
+    </div>
+  </div>
+
+  <!-- Main JS -->
+  <script src="js/main.js"></script>
+
+  <!-- 🔹 Added Firebase Dashboard Script -->
+  <script type="module" src="./js/dashboard.js"></script>
+
+  <script>
+    // small UI wiring for mobile and theme toggles
+    (function(){
+      const openBtn = document.getElementById('openSidebar');
+      const sidebar = document.getElementById('sidebar');
+      const themeToggle = document.getElementById('themeToggle');
+      const themeToggleMobile = document.getElementById('themeToggleMobile');
+
+      if(openBtn){
+        openBtn.addEventListener('click', ()=> {
+          sidebar.classList.toggle('hidden');
+        });
+      }
+      function setDark(d){
+        if(d){
+          document.documentElement.classList.add('dark');
+          document.body.classList.add('bg-slate-900','text-slate-100');
+          document.querySelectorAll('.glass').forEach(el => el.classList.add('glass-dark'));
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.body.classList.remove('bg-slate-900','text-slate-100');
+          document.querySelectorAll('.glass').forEach(el => el.classList.remove('glass-dark'));
+        }
+        localStorage.setItem('cc_theme_dark', d ? '1' : '0');
+      }
+      const themeStored = localStorage.getItem('cc_theme_dark');
+      setDark(themeStored === '1');
+
+      if(themeToggle) themeToggle.addEventListener('click', ()=> setDark(!(localStorage.getItem('cc_theme_dark') === '1')));
+      if(themeToggleMobile) themeToggleMobile.addEventListener('click', ()=> setDark(!(localStorage.getItem('cc_theme_dark') === '1')));
+    })();
+  </script>
+</body>
+</html>
